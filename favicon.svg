@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#14362f"/>
+  <rect x="8" y="8" width="48" height="48" fill="none" stroke="#f5f3ec" stroke-width="2"/>
+  <text x="32" y="45" fill="#f5f3ec" font-family="Georgia, serif" font-size="38" text-anchor="middle">∫</text>
+</svg>
