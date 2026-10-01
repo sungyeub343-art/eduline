@@ -87,9 +87,11 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 .area-main p { margin: 2px 0 58px; color: rgba(255,255,255,.64); font-size: 13px; }
 .area-main span { color: rgba(255,255,255,.45); font-size: 9px; letter-spacing: .12em; }
 .area-list { display: grid; grid-template-columns: repeat(3, 1fr); }
-.area-list span { display: flex; min-height: 72px; align-items: center; gap: 15px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 22px; font-weight: 700; }
-.area-list span:nth-child(3n) { border-right: 0; }
-.area-list span:nth-last-child(-n+3) { border-bottom: 0; }
+.area-list > * { display: flex; min-height: 72px; align-items: center; gap: 15px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 22px; font-weight: 700; }
+.area-list > a { transition: color .2s, background .2s; }
+.area-list > a:hover { color: var(--coral); background: rgba(255,255,255,.45); }
+.area-list > *:nth-child(3n) { border-right: 0; }
+.area-list > *:nth-last-child(-n+3) { border-bottom: 0; }
 .area-list small { color: #969e99; font-size: 9px; }
 
 .steps { color: var(--white); background: var(--forest); }
@@ -182,9 +184,9 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
   .area-grid { margin-top: 41px; }
   .area-main { padding: 33px; }
   .area-list { grid-template-columns: repeat(2, 1fr); }
-  .area-list span, .area-list span:nth-child(3n), .area-list span:nth-last-child(-n+2) { min-height: 62px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 13px; font-size: 13px; }
-  .area-list span:nth-child(2n) { border-right: 0; }
-  .area-list span:last-child { border-bottom: 0; }
+  .area-list > *, .area-list > *:nth-child(3n), .area-list > *:nth-last-child(-n+2) { min-height: 62px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 13px; font-size: 13px; }
+  .area-list > *:nth-child(2n) { border-right: 0; }
+  .area-list > *:last-child { border-bottom: 0; }
   .step-list { grid-template-columns: 1fr; row-gap: 42px; }
   .step-list li:not(:last-child)::after { top: auto; right: 50%; bottom: -31px; content: "↓"; }
   .contact { gap: 50px; padding: 87px 22px; }
