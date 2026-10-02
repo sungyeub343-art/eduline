@@ -5,6 +5,7 @@ from urllib.parse import unquote
 
 
 ROOT = Path(__file__).parent
+ASSET_VERSION = "20261002-2"
 FORM_ACTION = "https://script.google.com/macros/s/AKfycby5gWmodksOJ1oI7YBIBO9cZtlHjPZXqIQ4vbHYIvL52DLf4ZLBJaXr9jiYzdLpRRH4Ig/exec"
 
 pages = list(ROOT.glob("*/*/index.html"))
@@ -12,7 +13,7 @@ assert len(pages) == 158, f"Expected 158 locality pages, found {len(pages)}"
 
 for page in pages:
     html = page.read_text(encoding="utf-8")
-    assert '../../styles.css' in html, f"Missing stylesheet: {page}"
+    assert f'../../styles.css?v={ASSET_VERSION}' in html, f"Missing versioned stylesheet: {page}"
     assert '../../script.js' in html, f"Missing script: {page}"
     assert FORM_ACTION in html, f"Incorrect form action: {page}"
     assert '<link rel="canonical"' in html, f"Missing canonical: {page}"
@@ -21,6 +22,7 @@ for page in pages:
 parent_link_count = 0
 for parent_page in ROOT.glob("*/index.html"):
     html = parent_page.read_text(encoding="utf-8")
+    assert f'../styles.css?v={ASSET_VERSION}' in html, f"Missing versioned stylesheet: {parent_page}"
     grids = re.findall(r'class="locality-grid">(.*?)</div>', html, re.S)
     assert len(grids) == 1, f"Expected one locality grid: {parent_page}"
     for href in re.findall(r'href="([^"]+)/"', grids[0]):
