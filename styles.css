@@ -94,6 +94,11 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 .area-list > *:nth-last-child(-n+3) { border-bottom: 0; }
 .area-list small { color: #969e99; font-size: 9px; }
 
+.locality-directory { background: #e9eee9; }
+.locality-grid { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 54px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.locality-grid a { display: flex; min-height: 64px; align-items: center; justify-content: center; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px; background: rgba(255,255,255,.35); font-size: 14px; font-weight: 700; text-align: center; transition: color .2s, background .2s; }
+.locality-grid a:hover { color: var(--white); background: var(--forest-light); }
+
 .steps { color: var(--white); background: var(--forest); }
 .steps-heading { text-align: center; }
 .step-list { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 1160px; margin: 70px auto 0; padding: 0; list-style: none; }
@@ -150,6 +155,7 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
   .areas-heading { align-items: start; flex-direction: column; }
   .area-grid { grid-template-columns: 1fr; }
   .area-main { min-height: 275px; }
+  .locality-grid { grid-template-columns: repeat(3, 1fr); }
   .step-list { grid-template-columns: repeat(2, 1fr); row-gap: 55px; }
   .step-list li:nth-child(2)::after { display: none; }
   .contact { grid-template-columns: 1fr; }
@@ -187,6 +193,8 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
   .area-list > *, .area-list > *:nth-child(3n), .area-list > *:nth-last-child(-n+2) { min-height: 62px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 13px; font-size: 13px; }
   .area-list > *:nth-child(2n) { border-right: 0; }
   .area-list > *:last-child { border-bottom: 0; }
+  .locality-grid { grid-template-columns: repeat(2, 1fr); margin-top: 38px; }
+  .locality-grid a { min-height: 58px; padding: 8px; font-size: 13px; }
   .step-list { grid-template-columns: 1fr; row-gap: 42px; }
   .step-list li:not(:last-child)::after { top: auto; right: 50%; bottom: -31px; content: "↓"; }
   .contact { gap: 50px; padding: 87px 22px; }
