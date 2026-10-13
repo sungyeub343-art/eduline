@@ -7,6 +7,16 @@ from urllib.parse import unquote
 ROOT = Path(__file__).parent
 ASSET_VERSION = "20261002-2"
 FORM_ACTION = "https://script.google.com/macros/s/AKfycby5gWmodksOJ1oI7YBIBO9cZtlHjPZXqIQ4vbHYIvL52DLf4ZLBJaXr9jiYzdLpRRH4Ig/exec"
+SOCIAL_IMAGE = "https://eduline.kr/og-image.png"
+
+all_pages = [ROOT / "index.html", *ROOT.glob("*/index.html"), *ROOT.glob("*/*/index.html")]
+assert (ROOT / "og-image.png").exists(), "Missing social preview image"
+for page in all_pages:
+    html = page.read_text(encoding="utf-8")
+    assert f'<meta property="og:image" content="{SOCIAL_IMAGE}">' in html, f"Missing Open Graph image: {page}"
+    assert '<meta property="og:image:width" content="1200">' in html, f"Missing image width: {page}"
+    assert '<meta property="og:image:height" content="630">' in html, f"Missing image height: {page}"
+    assert '<meta name="twitter:card" content="summary_large_image">' in html, f"Missing Twitter card: {page}"
 
 pages = list(ROOT.glob("*/*/index.html"))
 assert len(pages) == 158, f"Expected 158 locality pages, found {len(pages)}"
