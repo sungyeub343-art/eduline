@@ -32,6 +32,30 @@
   </script>
 </head>
 <body>
+  <dialog class="region-dialog" id="region-dialog" aria-labelledby="region-dialog-title" aria-describedby="region-dialog-description">
+    <div class="region-dialog-panel">
+      <button class="region-dialog-close" type="button" aria-label="지역 선택 창 닫기">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+      <p class="kicker">REGION SELECT</p>
+      <h2 id="region-dialog-title">어느 지역의<br>수학과외를 찾으시나요?</h2>
+      <p id="region-dialog-description">시·군·구를 선택하면 해당 지역 안내로 바로 이동합니다.</p>
+      <nav class="region-dialog-grid" aria-label="인천 시·군·구 선택">
+        <a href="jung-gu/"><small>01</small><strong>중구</strong><span aria-hidden="true">↗</span></a>
+        <a href="dong-gu/"><small>02</small><strong>동구</strong><span aria-hidden="true">↗</span></a>
+        <a href="michuhol-gu/"><small>03</small><strong>미추홀구</strong><span aria-hidden="true">↗</span></a>
+        <a href="yeonsu-gu/"><small>04</small><strong>연수구</strong><span aria-hidden="true">↗</span></a>
+        <a href="namdong-gu/"><small>05</small><strong>남동구</strong><span aria-hidden="true">↗</span></a>
+        <a href="bupyeong-gu/"><small>06</small><strong>부평구</strong><span aria-hidden="true">↗</span></a>
+        <a href="gyeyang-gu/"><small>07</small><strong>계양구</strong><span aria-hidden="true">↗</span></a>
+        <a href="seo-gu/"><small>08</small><strong>서구</strong><span aria-hidden="true">↗</span></a>
+        <a href="ganghwa-gun/"><small>09</small><strong>강화군</strong><span aria-hidden="true">↗</span></a>
+        <a href="ongjin-gun/"><small>10</small><strong>옹진군</strong><span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </dialog>
+
   <header class="site-header" id="top">
     <a class="brand" href="#top" aria-label="인천 수학과외 홈">
       <span class="brand-symbol" aria-hidden="true">∫</span>

@@ -1,5 +1,17 @@
 const menuButton = document.querySelector('.menu-button');
 const navigation = document.querySelector('.primary-nav');
+const regionDialog = document.querySelector('#region-dialog');
+const regionDialogClose = regionDialog.querySelector('.region-dialog-close');
+
+regionDialog.showModal();
+
+regionDialogClose.addEventListener('click', () => regionDialog.close());
+
+regionDialog.addEventListener('click', (event) => {
+  if (event.target === regionDialog) {
+    regionDialog.close();
+  }
+});
 
 menuButton.addEventListener('click', () => {
   const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
