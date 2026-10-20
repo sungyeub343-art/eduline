@@ -5,8 +5,7 @@ from urllib.parse import unquote
 
 
 ROOT = Path(__file__).parent
-ASSET_VERSION = "20261002-2"
-FORM_ACTION = "https://script.google.com/macros/s/AKfycby5gWmodksOJ1oI7YBIBO9cZtlHjPZXqIQ4vbHYIvL52DLf4ZLBJaXr9jiYzdLpRRH4Ig/exec"
+ASSET_VERSION = "20261020-1"
 SOCIAL_IMAGE = "https://eduline.kr/og-image.png"
 
 all_pages = [ROOT / "index.html", *ROOT.glob("*/index.html"), *ROOT.glob("*/*/index.html")]
@@ -25,7 +24,7 @@ for page in pages:
     html = page.read_text(encoding="utf-8")
     assert f'../../styles.css?v={ASSET_VERSION}' in html, f"Missing versioned stylesheet: {page}"
     assert '../../script.js' in html, f"Missing script: {page}"
-    assert FORM_ACTION in html, f"Incorrect form action: {page}"
+    assert "contact-form" not in html, f"Unexpected contact form: {page}"
     assert '<link rel="canonical"' in html, f"Missing canonical: {page}"
     assert 'type="application/ld+json"' in html, f"Missing structured data: {page}"
 

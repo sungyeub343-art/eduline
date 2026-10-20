@@ -60,8 +60,8 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 33px; margin-top: 42px; }
 .button { display: inline-flex; min-height: 58px; align-items: center; justify-content: space-between; gap: 46px; border: 0; padding: 0 27px; font-weight: 700; cursor: pointer; transition: background .2s, transform .2s; }
 .button:hover { transform: translateY(-2px); }
-.button-coral, .submit-button { color: var(--white); background: var(--coral); }
-.button-coral:hover, .submit-button:hover { background: #d95e41; }
+.button-coral { color: var(--white); background: var(--coral); }
+.button-coral:hover { background: #d95e41; }
 .phone { display: grid; gap: 0; }
 .phone small { color: rgba(255,255,255,.54); font-size: 10px; }
 .phone strong { font-size: 16px; }
@@ -125,24 +125,10 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 .step-list strong { font-size: 18px; }
 .step-list p { margin: 5px 0 0; color: rgba(255,255,255,.55); font-size: 13px; }
 
-.contact { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(50px, 10vw, 145px); padding: 120px clamp(23px, 10vw, 165px); background: #ebe6da; }
+.contact { display: grid; padding: 120px clamp(23px, 10vw, 165px); background: #ebe6da; }
 .contact-copy > p:not(.kicker) { max-width: 410px; margin-top: 22px; color: var(--muted); }
 .contact-copy > a { display: block; width: max-content; margin-top: 42px; border-bottom: 1px solid var(--ink); padding-bottom: 7px; font-size: 20px; font-weight: 700; }
 .contact-copy > a small { margin-right: 17px; color: var(--muted); font-size: 11px; font-weight: 500; }
-.contact-form { display: grid; gap: 19px; align-content: center; }
-.honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.contact-form label:not(.agreement) { display: grid; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 600; }
-.field-note { font-weight: 400; }
-.contact-form input, .contact-form select, .contact-form textarea { width: 100%; border: 0; border-bottom: 1px solid rgba(23,35,31,.34); border-radius: 0; padding: 11px 2px; color: var(--ink); background: transparent; outline: 0; }
-.contact-form input:focus, .contact-form select:focus, .contact-form textarea:focus { border-color: var(--coral); }
-.contact-form textarea { resize: vertical; }
-.contact-form ::placeholder { color: #999f9b; }
-.agreement { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; cursor: pointer; }
-.agreement input { width: 16px; height: 16px; accent-color: var(--coral); }
-.submit-button { width: 100%; margin-top: 3px; }
-.submit-button:disabled { opacity: .6; cursor: wait; transform: none; }
-.form-status { min-height: 22px; margin: -8px 0 0; color: #a13d28; font-size: 12px; }
 
 .site-footer { display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 45px; padding: 49px clamp(23px, 5vw, 78px); color: rgba(255,255,255,.6); background: #09241e; font-size: 11px; }
 .site-footer .brand { color: var(--white); }
@@ -226,7 +212,6 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
   .step-list { grid-template-columns: 1fr; row-gap: 42px; }
   .step-list li:not(:last-child)::after { top: auto; right: 50%; bottom: -31px; content: "↓"; }
   .contact { gap: 50px; padding: 87px 22px; }
-  .form-row { grid-template-columns: 1fr; gap: 19px; }
   .site-footer { grid-template-columns: 1fr; gap: 26px; padding-bottom: 102px; }
   .site-footer > p { grid-column: auto; }
   .floating-contact { display: grid; }
