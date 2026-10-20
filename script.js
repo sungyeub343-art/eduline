@@ -1,17 +1,28 @@
 const menuButton = document.querySelector('.menu-button');
 const navigation = document.querySelector('.primary-nav');
 const regionDialog = document.querySelector('#region-dialog');
-const regionDialogClose = regionDialog.querySelector('.region-dialog-close');
 
-regionDialog.showModal();
+if (regionDialog) {
+  const regionDialogClose = regionDialog.querySelector('.region-dialog-close');
+  let hasSeenRegionDialog = false;
 
-regionDialogClose.addEventListener('click', () => regionDialog.close());
+  try {
+    hasSeenRegionDialog = sessionStorage.getItem('regionDialogSeen') === '1';
+    sessionStorage.setItem('regionDialogSeen', '1');
+  } catch (error) {}
 
-regionDialog.addEventListener('click', (event) => {
-  if (event.target === regionDialog) {
-    regionDialog.close();
+  if (!hasSeenRegionDialog) {
+    regionDialog.showModal();
   }
-});
+
+  regionDialogClose.addEventListener('click', () => regionDialog.close());
+
+  regionDialog.addEventListener('click', (event) => {
+    if (event.target === regionDialog) {
+      regionDialog.close();
+    }
+  });
+}
 
 menuButton.addEventListener('click', () => {
   const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
