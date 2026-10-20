@@ -5,7 +5,7 @@ from urllib.parse import unquote
 
 
 ROOT = Path(__file__).parent
-ASSET_VERSION = "20261020-1"
+ASSET_VERSION = "20261020-3"
 SOCIAL_IMAGE = "https://eduline.kr/og-image.png"
 
 all_pages = [ROOT / "index.html", *ROOT.glob("*/index.html"), *ROOT.glob("*/*/index.html")]

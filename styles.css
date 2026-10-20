@@ -116,6 +116,20 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 .locality-grid a { display: flex; min-height: 64px; align-items: center; justify-content: center; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px; background: rgba(255,255,255,.35); font-size: 14px; font-weight: 700; text-align: center; transition: color .2s, background .2s; }
 .locality-grid a:hover { color: var(--white); background: var(--forest-light); }
 
+.grade-guide { background: var(--paper); }
+.grade-guide .value p.grade-tags { margin: 0 0 14px; color: #bc4e36; font-size: 12px; font-weight: 700; }
+.grade-points { margin: 18px 0 0; padding: 0; list-style: none; font-size: 13px; font-weight: 600; }
+.grade-points li { padding: 4px 0; }
+.grade-points li::before { margin-right: 9px; color: var(--coral); content: "✓"; }
+.faq { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(40px, 8vw, 120px); background: #ebe6da; }
+.faq-list { border-top: 1px solid var(--line); }
+.faq-list details { border-bottom: 1px solid var(--line); }
+.faq-list summary { position: relative; padding: 24px 44px 24px 0; font-size: 17px; font-weight: 700; cursor: pointer; list-style: none; }
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary::after { position: absolute; top: 22px; right: 4px; color: var(--coral); font-size: 22px; font-weight: 400; content: "+"; }
+.faq-list details[open] summary::after { content: "−"; }
+.faq-list details p { margin: -6px 0 24px; padding-right: 44px; color: var(--muted); font-size: 14px; }
+
 .steps { color: var(--white); background: var(--forest); }
 .steps-heading { text-align: center; }
 .step-list { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 1160px; margin: 70px auto 0; padding: 0; list-style: none; }
@@ -162,7 +176,7 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
   .locality-grid { grid-template-columns: repeat(3, 1fr); }
   .step-list { grid-template-columns: repeat(2, 1fr); row-gap: 55px; }
   .step-list li:nth-child(2)::after { display: none; }
-  .contact { grid-template-columns: 1fr; }
+  .contact, .faq { grid-template-columns: 1fr; }
   .site-footer { grid-template-columns: 1fr 1fr; }
   .site-footer > p { grid-column: 1 / -1; }
 }
