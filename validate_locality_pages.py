@@ -29,7 +29,19 @@ for page in pages:
     assert 'type="application/ld+json"' in html, f"Missing structured data: {page}"
 
 parent_link_count = 0
-for parent_page in ROOT.glob("*/index.html"):
+district_slugs = ["jung-gu", "dong-gu", "michuhol-gu", "yeonsu-gu", "namdong-gu", "bupyeong-gu", "gyeyang-gu", "seo-gu", "ganghwa-gun", "ongjin-gun"]
+landing_slugs = ["songdo", "cheongna", "geomdan-gu", "yeongjong-gu", "jemulpo-gu", "elementary-math", "middle-math", "high-math"]
+home = (ROOT / "index.html").read_text(encoding="utf-8")
+for slug in landing_slugs:
+    html = (ROOT / slug / "index.html").read_text(encoding="utf-8")
+    assert f'href="{slug}/"' in home, f"Home does not link landing page: {slug}"
+    assert f'<link rel="canonical" href="https://eduline.kr/{slug}/">' in html, f"Missing canonical: {slug}"
+    assert 'FAQPage' in html, f"Missing FAQ schema: {slug}"
+    for href in re.findall(r'class="locality-grid nearby-grid">(.*?)</div>', html, re.S)[0].split('href="')[1:]:
+        target = ROOT / slug / unquote(href.split('"')[0]) / "index.html"
+        assert target.resolve().exists(), f"Broken landing link: {target}"
+
+for parent_page in (ROOT / slug / "index.html" for slug in district_slugs):
     html = parent_page.read_text(encoding="utf-8")
     assert f'../styles.css?v={ASSET_VERSION}' in html, f"Missing versioned stylesheet: {parent_page}"
     grids = re.findall(r'class="locality-grid">(.*?)</div>', html, re.S)
@@ -44,7 +56,7 @@ assert parent_link_count == 158, f"Expected 158 parent links, found {parent_link
 sitemap = ElementTree.parse(ROOT / "sitemap.xml")
 namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 urls = [element.text for element in sitemap.findall(".//s:loc", namespace)]
-assert len(urls) == 169, f"Expected 169 sitemap URLs, found {len(urls)}"
+assert len(urls) == 177, f"Expected 177 sitemap URLs, found {len(urls)}"
 assert len(urls) == len(set(urls)), "Duplicate sitemap URL found"
 
 print(f"PASS pages={len(pages)} parent_links={parent_link_count} sitemap_urls={len(urls)}")
