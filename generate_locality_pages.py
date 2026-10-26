@@ -1,4 +1,5 @@
 from pathlib import Path
+from html import escape as html_escape
 from urllib.parse import quote
 import json
 import re
@@ -164,11 +165,123 @@ def render_page(slug, district, locality, index, localities):
 <main><section class="hero" aria-labelledby="hero-title"><div class="hero-image" role="img" aria-label="선생님과 함께 수학 문제를 공부하는 학생"></div><div class="hero-overlay"></div><div class="hero-content"><p class="kicker light">{slug.upper()} {number} MATH TUTORING</p><h1 id="hero-title">인천 {locality} 수학과외,<br><em>학생에게 맞는 1:1 수업</em></h1><p class="hero-text">{area_copy}<br class="desktop-only"> 이해한 내용을 스스로 풀어낼 때까지 꼼꼼하게 이어갑니다.</p><div class="hero-actions"><a class="button button-coral" href="#contact">{action_copy} <span aria-hidden="true">↗</span></a><a class="phone" href="tel:01029283614"><small>전화 상담</small><strong>010-2928-3614</strong></a></div></div><div class="hero-note" aria-hidden="true"><span>{number}</span><i></i><span>{area_label}</span></div></section>
 <section class="intro section" id="approach"><div class="section-heading reveal"><p class="kicker">PERSONAL MATH LESSON</p><h2>현재 실력에서<br>필요한 공부부터</h2></div><div class="intro-copy reveal"><p class="lead">정해진 진도보다<br><strong>학생의 이해를 먼저 봅니다.</strong></p><p>{area_copy} 개념 이해도와 계산 정확도, 문제 해석 과정을 살핀 뒤 학생이 소화할 수 있는 순서로 수업합니다.</p></div><div class="values"><article class="value reveal"><span>01</span><strong>진단</strong><h3>개념 빈틈 확인</h3><p>최근 시험과 오답에서 막히는 지점을 찾습니다.</p></article><article class="value reveal"><span>02</span><strong>설계</strong><h3>개인별 진도 구성</h3><p>학교 일정과 목표에 맞춰 학습 순서를 정합니다.</p></article><article class="value reveal"><span>03</span><strong>관리</strong><h3>복습과 오답 점검</h3><p>배운 내용을 혼자서도 풀 수 있게 관리합니다.</p></article></div></section>
 {grade_guide(locality, index)}
+{locality_school_section(slug, district, locality)}
 <section class="steps section"><div class="steps-heading reveal"><p class="kicker light">HOW WE BEGIN</p><h2>충분히 살펴보고<br>맞는 수업을 시작합니다</h2></div><ol class="step-list"><li class="reveal"><span>01</span><strong>학습 상담</strong><p>지역과 목표 확인</p></li><li class="reveal"><span>02</span><strong>실력 진단</strong><p>개념과 습관 점검</p></li><li class="reveal"><span>03</span><strong>학습 설계</strong><p>개인별 계획 제안</p></li><li class="reveal"><span>04</span><strong>수업 관리</strong><p>복습과 오답 확인</p></li></ol></section>
 {faq_section(locality)}
 {nearby_section}
 <section class="contact" id="contact"><div class="contact-copy reveal"><p class="kicker">START YOUR WAY</p><h2>{locality} 수학과외<br>상담 신청</h2><p>전화 주시면 학생의 학년과 목표에 맞춰 상담을 도와드립니다.</p><a href="tel:01029283614"><small>전화 상담</small>010-2928-3614</a></div></section></main>
 <footer class="site-footer"><a class="brand" href="../../"><span class="brand-symbol" aria-hidden="true">∫</span><span>인천 수학과외<small>EDULINE</small></span></a><div><p>{district} {locality} 초·중·고 1:1 수학과외</p><p>상담 문의 <a href="tel:01029283614">010-2928-3614</a></p></div><p>© <span id="year"></span> EDULINE. ALL RIGHTS RESERVED.</p></footer><a class="floating-contact" href="#contact" aria-label="상담 신청"><span>상담</span><span aria-hidden="true">↗</span></a><script src="../../script.js?v={ASSET_VERSION}"></script></body></html>'''
+
+
+SCHOOL_DATA = json.loads((ROOT / "data" / "incheon_schools.json").read_text(encoding="utf-8"))
+SCHOOLS = SCHOOL_DATA["schools"]
+SCHOOL_TYPES = ["초등학교", "중학교", "고등학교"]
+SCHOOL_DISTRICTS = ["제물포구", "영종구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서해구", "검단구", "강화군", "옹진군"]
+JEMULPO_DONG_GU = {"만석동", "화수동", "화평동", "송현동", "송림동", "창영동", "금곡동"}
+GEOMDAN_LOCALITIES = {"검단동", "불로대곡동", "원당동", "당하동", "오류왕길동", "마전동", "아라1동", "아라2동"}
+EXTRA_LEGAL_DONGS = {"금창동": ["창영동", "금곡동"], "개항동": ["북성동", "송학동", "항동"]}
+
+
+def school_district(slug, locality=None):
+    if slug == "jung-gu":
+        if locality is None:
+            return ["제물포구", "영종구"]
+        return ["영종구"] if locality.startswith(("영종", "운서", "용유")) else ["제물포구"]
+    if slug == "dong-gu":
+        return ["제물포구"]
+    if slug == "seo-gu":
+        if locality is None:
+            return ["서해구", "검단구"]
+        return ["검단구"] if locality in GEOMDAN_LOCALITIES else ["서해구"]
+    return [dict((s, d) for s, d, _ in DISTRICTS)[slug]]
+
+
+def legal_base(dong):
+    return re.sub(r"\d", "", re.sub(r"(동\d*가|동)$", "", dong))
+
+
+def locality_bases(locality):
+    if locality.endswith(("읍", "면")):
+        return {locality}
+    bases = set()
+    for part in re.sub(r"동$", "", locality).split("·"):
+        part = re.sub(r"\d", "", part)
+        if len(part) == 4:
+            bases.update({part[:2], part[2:]})
+        elif part:
+            bases.add(part)
+    for extra in EXTRA_LEGAL_DONGS.get(locality, []):
+        bases.add(legal_base(extra))
+    return bases
+
+
+def schools_in(districts, legal_dongs=None):
+    return [
+        school for school in SCHOOLS
+        if school["district"] in districts and (legal_dongs is None or legal_base(school["dong"]) in legal_dongs or school["dong"] in legal_dongs)
+    ]
+
+
+def slug_schools(slug, locality=None):
+    districts = school_district(slug, locality)
+    if locality is None:
+        schools = schools_in(districts)
+        if slug == "dong-gu":
+            return [school for school in schools if school["dong"] in JEMULPO_DONG_GU]
+        if slug == "jung-gu":
+            return [school for school in schools if school["dong"] not in JEMULPO_DONG_GU]
+        return schools
+    return schools_in(districts, locality_bases(locality))
+
+
+def school_chips(schools):
+    return "".join(f"<li>{html_escape(school['name'])}</li>" for school in schools)
+
+
+def school_columns(schools):
+    groups = []
+    for school_type in SCHOOL_TYPES:
+        items = [school for school in schools if school["type"] == school_type]
+        if items:
+            groups.append(f'<div class="school-group"><h3>{school_type} <small>{len(items)}곳</small></h3><ul>{school_chips(items)}</ul></div>')
+    return f'<div class="school-groups">{"".join(groups)}</div>'
+
+
+def school_section(heading, lead, body):
+    return (
+        '<section class="schools section" id="schools"><div class="areas-heading reveal"><div><p class="kicker">LOCAL SCHOOLS</p>'
+        f'<h2>{heading}</h2></div><p>{lead}</p></div>{body}'
+        f'<p class="school-source">학교 정보: {SCHOOL_DATA["source"]} 기준. 각 학교와 제휴 관계는 없으며, 학교별 진도와 시험 범위에 맞춘 수업을 안내합니다.</p></section>'
+    )
+
+
+def school_lead(area, schools):
+    names = [school["name"] for school_type in ["중학교", "고등학교", "초등학교"] for school in schools if school["type"] == school_type][:3]
+    example = f"{', '.join(names)} 등 " if names else ""
+    return f"{example}{area} 학생의 학교별 진도와 시험 범위, 기출 유형을 확인해 초등 수학공부부터 중등·고등 수학내신, 수능대비까지 준비합니다."
+
+
+def area_school_section(area, schools):
+    return school_section(f"{area} 학교별<br>수학 내신 대비", html_escape(school_lead(area, schools)), school_columns(schools))
+
+
+def locality_school_section(slug, district, locality):
+    schools = slug_schools(slug, locality)
+    if schools:
+        return area_school_section(f"{locality} 인근", schools)
+    districts = school_district(slug, locality)
+    return area_school_section(f"{'·'.join(districts)}", schools_in(districts))
+
+
+def grouped_school_section(heading, lead, school_types):
+    blocks = []
+    for district in SCHOOL_DISTRICTS:
+        items = [school for school in SCHOOLS if school["district"] == district and school["type"] in school_types]
+        if not items:
+            continue
+        inner = school_columns(items) if len(school_types) > 1 else f'<ul class="school-chips">{school_chips(items)}</ul>'
+        blocks.append(f'<details class="school-district"><summary>인천 {district} <small>{len(items)}곳</small></summary>{inner}</details>')
+    return school_section(heading, lead, f'<div class="school-district-list">{"".join(blocks)}</div>')
 
 
 def locality_links(slug, names):
@@ -197,6 +310,7 @@ LANDING_PAGES = [
             ("송도 어느 지역까지 수업이 가능한가요?", "송도1동부터 송도5동까지 송도국제도시 전 지역 상담이 가능합니다. 주소와 희망 시간을 알려주시면 가능한 일정을 안내해 드립니다."),
             ("선행을 많이 했는데 수학내신 점수가 잘 안 나와요.", "선행 진도보다 현재 학년 개념의 정확도가 내신 점수를 좌우하는 경우가 많습니다. 오답과 풀이 과정을 진단해 빈틈을 먼저 메우고, 학교 기출 유형으로 실전 감각을 맞춥니다."),
         ],
+        "schools": (["연수구"], {"송도"}),
         "links_title": "송도 동별<br>수학과외 안내",
         "links": locality_links("yeonsu-gu", ["송도1동", "송도2동", "송도3동", "송도4동", "송도5동"]) + [("연수구 수학과외", "../yeonsu-gu/")],
     },
@@ -212,6 +326,7 @@ LANDING_PAGES = [
             ("청라 어느 지역까지 수업이 가능한가요?", "청라1동부터 청라3동까지 청라국제도시 전 지역과 인근 가정동·연희동 상담이 가능합니다. 주소와 희망 시간을 알려주시면 가능한 일정을 안내해 드립니다."),
             ("학원과 1:1 수학과외를 함께 해도 되나요?", "가능합니다. 학원 진도는 유지하면서 이해가 부족한 단원과 오답을 1:1 수업에서 보완하는 방식으로 진행할 수 있습니다."),
         ],
+        "schools": (["서해구"], {"청라"}),
         "links_title": "청라·인근 지역<br>수학과외 안내",
         "links": locality_links("seo-gu", ["청라1동", "청라2동", "청라3동", "연희동", "가정1동", "가정2동", "가정3동"]) + [("서구 수학과외", "../seo-gu/")],
     },
@@ -227,6 +342,7 @@ LANDING_PAGES = [
             ("검단구는 기존 서구와 어떤 관계인가요?", "2026년 7월 행정구역 개편으로 기존 서구의 검단 지역이 검단구가 되었습니다. 검단동, 불로대곡동, 원당동, 당하동, 오류왕길동, 마전동, 아라동 등 검단 지역 상담이 가능합니다."),
             ("전학 후 진도가 달라 공백이 생겼어요.", "이전 학교와 현재 학교의 진도 차이를 확인해 빠진 단원부터 정리합니다. 이후 현재 학교의 시험 범위에 맞춰 수학내신을 준비합니다."),
         ],
+        "schools": (["검단구"], None),
         "links_title": "검단 동별<br>수학과외 안내",
         "links": locality_links("seo-gu", ["검단동", "불로대곡동", "원당동", "당하동", "오류왕길동", "마전동", "아라1동", "아라2동"]),
     },
@@ -242,6 +358,7 @@ LANDING_PAGES = [
             ("영종도도 수업이 가능한가요?", "영종동, 영종1·2동, 운서1·2동, 용유동 등 영종구 지역의 수업 가능 일정과 방식을 상담 시 안내해 드립니다."),
             ("영종구는 기존 중구와 어떤 관계인가요?", "2026년 7월 행정구역 개편으로 기존 중구의 영종·용유 지역이 영종구가 되었습니다."),
         ],
+        "schools": (["영종구"], None),
         "links_title": "영종도 동별<br>수학과외 안내",
         "links": locality_links("jung-gu", ["영종동", "영종1동", "영종2동", "운서1동", "운서2동", "용유동"]),
     },
@@ -256,12 +373,13 @@ LANDING_PAGES = [
         "faq": [
             ("제물포구는 어느 지역인가요?", "2026년 7월 행정구역 개편으로 기존 중구 내륙 지역(신포동, 동인천동, 개항동 등)과 동구(송림동, 송현동, 화수동, 만석동, 금창동 등)가 합쳐진 지역입니다. 제물포구 전 지역 상담이 가능합니다."),
         ],
+        "schools": (["제물포구"], None),
         "links_title": "제물포구 동별<br>수학과외 안내",
         "links": locality_links("jung-gu", ["연안동", "신포동", "신흥동", "도원동", "율목동", "동인천동", "개항동"])
         + locality_links("dong-gu", ["만석동", "화수1·화평동", "화수2동", "송현1·2동", "송현3동", "송림1동", "송림2동", "송림3·5동", "송림4동", "송림6동", "금창동"]),
     },
     {
-        "slug": "elementary-math", "area": "인천 초등", "label": "초등 수학",
+        "slug": "elementary-math", "area": "인천 초등", "label": "초등 수학", "school_type": "초등학교",
         "title": "인천 초등 수학과외 | 초등 기초수학·수학공부 습관 1:1 수업",
         "description": f"인천 초등 수학과외 - 초등 기초수학, 연산, 문장제·서술형, 수학공부 습관부터 예비중1 준비까지 1:1 맞춤 초등 수학수업. 무료 학습 상담 {PHONE}",
         "h1": "인천 초등 수학과외,", "em": "기초부터 탄탄한 1:1 수업",
@@ -280,7 +398,7 @@ LANDING_PAGES = [
         ],
     },
     {
-        "slug": "middle-math", "area": "인천 중등", "label": "중등 수학",
+        "slug": "middle-math", "area": "인천 중등", "label": "중등 수학", "school_type": "중학교",
         "title": "인천 중등 수학과외 | 중1·중2·중3 수학내신 1:1 대비",
         "description": f"인천 중등 수학과외 - 중1·중2·중3 학교별 수학내신, 서술형, 중등 기초수학 보완부터 예비고1 공통수학까지 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
         "h1": "인천 중등 수학과외,", "em": "수학내신까지 잡는 1:1 수업",
@@ -299,7 +417,7 @@ LANDING_PAGES = [
         ],
     },
     {
-        "slug": "high-math", "area": "인천 고등", "label": "고등 수학",
+        "slug": "high-math", "area": "인천 고등", "label": "고등 수학", "school_type": "고등학교",
         "title": "인천 고등 수학과외 | 고1·고2·고3 수학내신·수능수학 1:1 대비",
         "description": f"인천 고등 수학과외 - 고1 공통수학, 고2 선택과목 수학내신, 고3 수능대비·수능수학, 고등 기초수학 보완까지 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
         "h1": "인천 고등 수학과외,", "em": "내신·수능 1:1 맞춤 수업",
@@ -334,10 +452,17 @@ def render_landing(page, index):
         guide = cards_section("curriculum", "MATH BY GRADE", f"{name}<br>학년별 수업 안내", page["description"].split(" - ")[1].split(". ")[0] + ".", page["cards"])
         links = [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug] + DISTRICT_LINKS
         links_title, links_kicker = "지역별·학년별<br>수학과외 안내", "MORE GUIDE"
+        school_type = page["school_type"]
+        schools = grouped_school_section(
+            f"인천 {school_type}별<br>수학 내신 대비",
+            f"인천 {school_type} {sum(s['type'] == school_type for s in SCHOOLS)}곳의 학교별 진도와 시험 범위, 기출 유형에 맞춰 수업합니다. 구·군을 선택해 학교 목록을 확인해 보세요.",
+            [school_type],
+        )
     else:
         guide = grade_guide(area, index)
         links = page["links"] + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug and target.endswith("math")]
         links_title, links_kicker = page["links_title"], "LOCAL AREA GUIDE"
+        schools = area_school_section(area, schools_in(*page["schools"]))
     link_html = "".join(f'<a href="{href}">{label}</a>' for label, href in links)
     schema = json_ld([
         {
@@ -355,6 +480,7 @@ def render_landing(page, index):
 <main><section class="hero" aria-labelledby="hero-title"><div class="hero-image" role="img" aria-label="선생님과 함께 수학 문제를 공부하는 학생"></div><div class="hero-overlay"></div><div class="hero-content"><p class="kicker light">{slug.upper()} MATH TUTORING</p><h1 id="hero-title">{page["h1"]}<br><em>{page["em"]}</em></h1><p class="hero-text">{page["hero"]}<br class="desktop-only"> 이해한 내용을 스스로 풀어낼 때까지 꼼꼼하게 이어갑니다.</p><div class="hero-actions"><a class="button button-coral" href="#contact">무료 학습 상담 <span aria-hidden="true">↗</span></a><a class="phone" href="tel:01029283614"><small>전화 상담</small><strong>010-2928-3614</strong></a></div></div><div class="hero-note" aria-hidden="true"><span>{str(index + 1).zfill(2)}</span><i></i><span>{page["label"]}</span></div></section>
 <section class="intro section" id="approach"><div class="section-heading reveal"><p class="kicker">PERSONAL MATH LESSON</p><h2>{page["intro_h2"]}</h2></div><div class="intro-copy reveal"><p class="lead">{page["lead"]}</p><p>{page["body"]}</p></div><div class="values"><article class="value reveal"><span>01</span><strong>진단</strong><h3>개념 빈틈 확인</h3><p>최근 시험과 오답에서 막히는 지점을 찾습니다.</p></article><article class="value reveal"><span>02</span><strong>설계</strong><h3>개인별 진도 구성</h3><p>학교 일정과 목표에 맞춰 학습 순서를 정합니다.</p></article><article class="value reveal"><span>03</span><strong>관리</strong><h3>복습과 오답 점검</h3><p>배운 내용을 혼자서도 풀 수 있게 관리합니다.</p></article></div></section>
 {guide}
+{schools}
 <section class="steps section"><div class="steps-heading reveal"><p class="kicker light">HOW WE BEGIN</p><h2>충분히 살펴보고<br>맞는 수업을 시작합니다</h2></div><ol class="step-list"><li class="reveal"><span>01</span><strong>학습 상담</strong><p>지역과 목표 확인</p></li><li class="reveal"><span>02</span><strong>실력 진단</strong><p>개념과 습관 점검</p></li><li class="reveal"><span>03</span><strong>학습 설계</strong><p>개인별 계획 제안</p></li><li class="reveal"><span>04</span><strong>수업 관리</strong><p>복습과 오답 확인</p></li></ol></section>
 {faq_section(name.removesuffix(" 수학과외"), faq)}
 <section class="locality-directory section" aria-labelledby="links-title"><div class="areas-heading reveal"><div><p class="kicker">{links_kicker}</p><h2 id="links-title">{links_title}</h2></div><p>원하는 지역과 학년의 수학과외 안내를 확인해 보세요.</p></div><div class="locality-grid nearby-grid">{link_html}</div></section>
@@ -404,7 +530,7 @@ def update_parent(slug, district, localities):
         breadcrumb_schema([("인천 수학과외", "https://eduline.kr/"), (f"{district} 수학과외", canonical)]),
         faq_schema(district),
     ]))
-    html = set_seo_block(html, grade_guide(district, 0, "grade-guide") + faq_section(district))
+    html = set_seo_block(html, grade_guide(district, 0, "grade-guide") + area_school_section(district, slug_schools(slug)) + faq_section(district))
     links = "".join(f'<a href="{encoded(locality)}/">{locality} 수학과외</a>' for locality in localities)
     section = (
         '<!-- LOCALITY_LINKS_START --><section class="locality-directory section" aria-labelledby="locality-title">'
@@ -440,7 +566,11 @@ def update_home():
         {"@type": "WebSite", "name": "인천 수학과외 EDULINE", "url": "https://eduline.kr/", "inLanguage": "ko-KR"},
         faq_schema("인천"),
     ]))
-    html = set_seo_block(html, grade_guide("인천", 0, "grade-guide") + faq_section("인천") + landing_links_section())
+    html = set_seo_block(html, grade_guide("인천", 0, "grade-guide") + grouped_school_section(
+        "인천 학교별<br>수학 내신 대비",
+        f"인천 초등학교 {sum(s['type'] == '초등학교' for s in SCHOOLS)}곳, 중학교 {sum(s['type'] == '중학교' for s in SCHOOLS)}곳, 고등학교 {sum(s['type'] == '고등학교' for s in SCHOOLS)}곳. 학생이 다니는 학교의 진도와 시험 범위, 기출 유형에 맞춰 수학내신과 수능대비를 준비합니다.",
+        SCHOOL_TYPES,
+    ) + faq_section("인천") + landing_links_section())
     file_path.write_text(html, encoding="utf-8")
 
 

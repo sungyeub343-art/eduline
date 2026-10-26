@@ -70,7 +70,7 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 
 .section { padding: 120px clamp(23px, 8vw, 135px); }
 .intro { display: grid; grid-template-columns: .9fr 1.1fr; gap: 7vw; }
-.section-heading h2, .curriculum h2, .areas h2, .steps h2, .contact h2 { font-size: clamp(35px, 4vw, 56px); }
+.section-heading h2, .curriculum h2, .areas h2, .steps h2, .contact h2, .schools h2 { font-size: clamp(35px, 4vw, 56px); }
 .intro-copy { max-width: 620px; align-self: end; color: var(--muted); }
 .intro-copy .lead { margin: 0 0 17px; color: var(--ink); font-size: 21px; }
 .values { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 67px; border-top: 1px solid var(--line); }
@@ -121,6 +121,20 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 .grade-points { margin: 18px 0 0; padding: 0; list-style: none; font-size: 13px; font-weight: 600; }
 .grade-points li { padding: 4px 0; }
 .grade-points li::before { margin-right: 9px; color: var(--coral); content: "✓"; }
+.schools { background: #f0eee6; }
+.school-groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: 54px; }
+.school-group h3 { margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 18px; }
+.school-group h3 small, .school-district summary small { margin-left: 6px; color: var(--coral); font-size: 12px; font-weight: 700; }
+.school-group ul, .school-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.school-group li, .school-chips li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; background: rgba(255,255,255,.55); color: #3d4843; font-size: 12.5px; }
+.school-district-list { margin-top: 54px; border-top: 1px solid var(--line); }
+.school-district { border-bottom: 1px solid var(--line); }
+.school-district summary { position: relative; padding: 20px 44px 20px 0; font-size: 16px; font-weight: 700; cursor: pointer; list-style: none; }
+.school-district summary::-webkit-details-marker { display: none; }
+.school-district summary::after { position: absolute; top: 17px; right: 4px; color: var(--coral); font-size: 22px; font-weight: 400; content: "+"; }
+.school-district[open] summary::after { content: "−"; }
+.school-district .school-groups, .school-district .school-chips { margin: 0 0 26px; }
+.school-source { margin: 34px 0 0; color: #8a938e; font-size: 12px; }
 .faq { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(40px, 8vw, 120px); background: #ebe6da; }
 .faq-list { border-top: 1px solid var(--line); }
 .faq-list details { border-bottom: 1px solid var(--line); }
@@ -176,7 +190,7 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
   .locality-grid { grid-template-columns: repeat(3, 1fr); }
   .step-list { grid-template-columns: repeat(2, 1fr); row-gap: 55px; }
   .step-list li:nth-child(2)::after { display: none; }
-  .contact, .faq { grid-template-columns: 1fr; }
+  .contact, .faq, .school-groups { grid-template-columns: 1fr; }
   .site-footer { grid-template-columns: 1fr 1fr; }
   .site-footer > p { grid-column: 1 / -1; }
 }
