@@ -25,6 +25,7 @@ for page in pages:
     assert f'../../styles.css?v={ASSET_VERSION}' in html, f"Missing versioned stylesheet: {page}"
     assert '../../script.js' in html, f"Missing script: {page}"
     assert "contact-form" not in html, f"Unexpected contact form: {page}"
+    assert 'id="schools"' in html and "학교 <small>" in html, f"Missing school keywords: {page}"
     assert '<link rel="canonical"' in html, f"Missing canonical: {page}"
     assert 'type="application/ld+json"' in html, f"Missing structured data: {page}"
 
