@@ -247,4 +247,4 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 
 @media (max-width: 370px) {
   .region-dialog-grid { grid-template-columns: 1fr; }
-}
+}.school-chips-wide { margin-top: 54px; }

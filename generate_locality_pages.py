@@ -379,6 +379,21 @@ LANDING_PAGES = [
         + locality_links("dong-gu", ["만석동", "화수1·화평동", "화수2동", "송현1·2동", "송현3동", "송림1동", "송림2동", "송림3·5동", "송림4동", "송림6동", "금창동"]),
     },
     {
+        "slug": "seohae-gu", "area": "서해구", "label": "서해구",
+        "title": "서해구 수학과외 | 인천 서해구 초등·중등·고등 1:1 수학 내신·수능대비",
+        "description": f"인천 서해구 수학과외 - 청라·검암·가정·석남·가좌·신현·연희동 초등 기초수학, 중등 수학내신, 고등 수능대비·수능수학 1:1 맞춤 수업. 무료 학습 상담 {PHONE}",
+        "h1": "인천 서해구 수학과외,", "em": "청라부터 가좌까지 1:1 수학 수업",
+        "hero": "청라·검암·가정·석남·가좌·신현·연희동 학생의 학교 진도와 목표에 맞춰 수업합니다.",
+        "intro_h2": "서해구 학생에게<br>필요한 수학 공부", "lead": "동네마다 다른 학교 일정,<br><strong>학생에게 맞춰 준비합니다.</strong>",
+        "body": "2026년 7월 행정구역 개편으로 검단 지역을 제외한 기존 서구가 서해구가 되었습니다. 청라국제도시부터 가정·석남·가좌동 원도심까지 학교마다 진도와 시험 유형이 다르기 때문에, 서해구 학생의 현재 학교 진도를 확인해 수학내신과 다음 학년 준비를 함께 설계합니다.",
+        "faq": [
+            ("서해구는 기존 서구와 어떤 관계인가요?", "2026년 7월 행정구역 개편으로 검단 지역이 검단구로 분리되고, 나머지 서구 지역이 서해구가 되었습니다. 청라, 검암경서, 연희, 가정, 신현원창, 석남, 가좌동 등 서해구 전 지역 상담이 가능합니다."),
+        ],
+        "schools": (["서해구"], None),
+        "links_title": "서해구 동별<br>수학과외 안내",
+        "links": locality_links("seo-gu", ["검암경서동", "연희동", "청라1동", "청라2동", "청라3동", "가정1동", "가정2동", "가정3동", "신현원창동", "석남1동", "석남2동", "석남3동", "가좌1동", "가좌2동", "가좌3동", "가좌4동"]),
+    },
+    {
         "slug": "elementary-math", "area": "인천 초등", "label": "초등 수학", "school_type": "초등학교",
         "title": "인천 초등 수학과외 | 초등 기초수학·수학공부 습관 1:1 수업",
         "description": f"인천 초등 수학과외 - 초등 기초수학, 연산, 문장제·서술형, 수학공부 습관부터 예비중1 준비까지 1:1 맞춤 초등 수학수업. 무료 학습 상담 {PHONE}",
@@ -439,6 +454,62 @@ LANDING_PAGES = [
 
 LANDING_LINKS = [(page["title"].split(" | ")[0], page["slug"]) for page in LANDING_PAGES]
 
+DISTRICT_HUBS = {
+    "제물포구": "jemulpo-gu", "영종구": "yeongjong-gu", "미추홀구": "michuhol-gu", "연수구": "yeonsu-gu", "남동구": "namdong-gu",
+    "부평구": "bupyeong-gu", "계양구": "gyeyang-gu", "서해구": "seohae-gu", "검단구": "geomdan-gu", "강화군": "ganghwa-gun", "옹진군": "ongjin-gun",
+}
+GRADE_SHORT = {"초등학교": ("초등", "elementary-math"), "중학교": ("중등", "middle-math"), "고등학교": ("고등", "high-math")}
+GRADE_FOCUS = {
+    "초등학교": "초등 기초수학·연산·서술형부터 예비중1 준비까지",
+    "중학교": "중등 수학내신·서술형, 기초수학 보완부터 예비고1 준비까지",
+    "고등학교": "고등 수학내신과 수능대비·수능수학까지",
+}
+GRADE_TEMPLATES = {page["school_type"]: page for page in LANDING_PAGES if "school_type" in page}
+
+
+def district_grade_slug(district, school_type):
+    return f"{DISTRICT_HUBS[district]}-{GRADE_SHORT[school_type][1]}"
+
+
+def district_grade_links(districts, school_types=SCHOOL_TYPES, exclude=None, prefix="../"):
+    return [
+        (f"{district} {GRADE_SHORT[school_type][0]} 수학과외", f"{prefix}{district_grade_slug(district, school_type)}/")
+        for district in districts for school_type in school_types
+        if district_grade_slug(district, school_type) != exclude
+    ]
+
+
+def build_district_grade_pages():
+    pages = []
+    for district in SCHOOL_DISTRICTS:
+        for school_type in SCHOOL_TYPES:
+            template = GRADE_TEMPLATES[school_type]
+            short, grade_slug = GRADE_SHORT[school_type]
+            slug = district_grade_slug(district, school_type)
+            schools = [school for school in SCHOOLS if school["district"] == district and school["type"] == school_type]
+            name = f"인천 {district} {short} 수학과외"
+            example = "·".join(school["name"] for school in schools[:2])
+            pages.append({
+                "slug": slug, "area": f"{district} {short}", "label": f"{district} {short} 수학",
+                "school_type": school_type, "school_districts": [district],
+                "title": f"{name} | {template['title'].split(' | ')[1]}",
+                "description": f"{name} - {example} 등 {district} {school_type} {len(schools)}곳 학교별 {GRADE_FOCUS[school_type]} 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
+                "h1": f"인천 {district} {short} 수학과외,", "em": template["em"], "hero": template["hero"],
+                "intro_h2": f"{district} {short} 수학,<br>학교별로 준비합니다", "lead": template["lead"],
+                "body": f"{district}에는 {school_type} {len(schools)}곳이 있고, 학교마다 진도와 시험 범위, 출제 유형이 다릅니다. {template['body']}",
+                "cards": [(label, title, tags.replace("인천 ", f"{district} "), body, points) for label, title, tags, body, points in template["cards"]],
+                "faq": template["faq"],
+                "links_title": f"{district}·{short}<br>수학과외 더 보기",
+                "links": district_grade_links([district], exclude=slug)
+                + [(f"{district} 수학과외", f"../{DISTRICT_HUBS[district]}/"), (f"인천 {short} 수학과외", f"../{grade_slug}/")]
+                + district_grade_links([other for other in SCHOOL_DISTRICTS if other != district], [school_type]),
+            })
+    return pages
+
+
+DISTRICT_GRADE_PAGES = build_district_grade_pages()
+ALL_LANDING_PAGES = LANDING_PAGES + DISTRICT_GRADE_PAGES
+
 
 def render_landing(page, index):
     slug, area = page["slug"], page["area"]
@@ -450,17 +521,26 @@ def render_landing(page, index):
     ]
     if grade_page:
         guide = cards_section("curriculum", "MATH BY GRADE", f"{name}<br>학년별 수업 안내", page["description"].split(" - ")[1].split(". ")[0] + ".", page["cards"])
-        links = [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug] + DISTRICT_LINKS
-        links_title, links_kicker = "지역별·학년별<br>수학과외 안내", "MORE GUIDE"
         school_type = page["school_type"]
-        schools = grouped_school_section(
-            f"인천 {school_type}별<br>수학 내신 대비",
-            f"인천 {school_type} {sum(s['type'] == school_type for s in SCHOOLS)}곳의 학교별 진도와 시험 범위, 기출 유형에 맞춰 수업합니다. 구·군을 선택해 학교 목록을 확인해 보세요.",
-            [school_type],
-        )
+        if "school_districts" in page:
+            links, links_title, links_kicker = page["links"], page["links_title"], "MORE GUIDE"
+            district_schools = [school for school in SCHOOLS if school["district"] in page["school_districts"] and school["type"] == school_type]
+            schools = school_section(
+                f"{area} 학교별<br>수학 내신 대비",
+                html_escape(school_lead(area, district_schools)),
+                f'<ul class="school-chips school-chips-wide">{school_chips(district_schools)}</ul>',
+            )
+        else:
+            links = district_grade_links(SCHOOL_DISTRICTS, [school_type]) + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug] + DISTRICT_LINKS
+            links_title, links_kicker = "지역별·학년별<br>수학과외 안내", "MORE GUIDE"
+            schools = grouped_school_section(
+                f"인천 {school_type}별<br>수학 내신 대비",
+                f"인천 {school_type} {sum(s['type'] == school_type for s in SCHOOLS)}곳의 학교별 진도와 시험 범위, 기출 유형에 맞춰 수업합니다. 구·군을 선택해 학교 목록을 확인해 보세요.",
+                [school_type],
+            )
     else:
         guide = grade_guide(area, index)
-        links = page["links"] + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug and target.endswith("math")]
+        links = page["links"] + district_grade_links(page["schools"][0]) + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug and target.endswith("math")]
         links_title, links_kicker = page["links_title"], "LOCAL AREA GUIDE"
         schools = area_school_section(area, schools_in(*page["schools"]))
     link_html = "".join(f'<a href="{href}">{label}</a>' for label, href in links)
@@ -530,7 +610,13 @@ def update_parent(slug, district, localities):
         breadcrumb_schema([("인천 수학과외", "https://eduline.kr/"), (f"{district} 수학과외", canonical)]),
         faq_schema(district),
     ]))
-    html = set_seo_block(html, grade_guide(district, 0, "grade-guide") + area_school_section(district, slug_schools(slug)) + faq_section(district))
+    grade_links = "".join(f'<a href="{href}">{label}</a>' for label, href in district_grade_links(school_district(slug)))
+    grade_links_section = (
+        '<section class="locality-directory section" aria-labelledby="grade-links-title"><div class="areas-heading reveal"><div><p class="kicker">MATH BY GRADE</p>'
+        f'<h2 id="grade-links-title">{district} 학년별<br>수학과외 안내</h2></div><p>초등·중등·고등 학년별 수학과외 안내와 학교 목록을 확인해 보세요.</p></div>'
+        f'<div class="locality-grid nearby-grid">{grade_links}</div></section>'
+    )
+    html = set_seo_block(html, grade_guide(district, 0, "grade-guide") + area_school_section(district, slug_schools(slug)) + grade_links_section + faq_section(district))
     links = "".join(f'<a href="{encoded(locality)}/">{locality} 수학과외</a>' for locality in localities)
     section = (
         '<!-- LOCALITY_LINKS_START --><section class="locality-directory section" aria-labelledby="locality-title">'
@@ -585,7 +671,7 @@ def build_sitemap():
     )
     urls.extend(
         f"  <url><loc>https://eduline.kr/{page['slug']}/</loc><lastmod>{LASTMOD}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>"
-        for page in LANDING_PAGES
+        for page in ALL_LANDING_PAGES
     )
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -605,7 +691,7 @@ def build_rss():
         (f"인천 {locality} 수학과외", f"https://eduline.kr/{slug}/{encoded(locality)}/", f"인천 {district} {locality} 초등 기초수학, 중등 수학내신, 고등 수능대비 수학수업 안내")
         for slug, district, localities in DISTRICTS for locality in localities
     )
-    items.extend((page["title"], f"https://eduline.kr/{page['slug']}/", page["description"]) for page in LANDING_PAGES)
+    items.extend((page["title"], f"https://eduline.kr/{page['slug']}/", page["description"]) for page in ALL_LANDING_PAGES)
     pub_date = "Sat, 24 Oct 2026 09:00:00 +0900"
     body = "\n".join(
         f"    <item><title>{title}</title><link>{link}</link><guid>{link}</guid><description>{text}</description><pubDate>{pub_date}</pubDate></item>"
@@ -636,7 +722,7 @@ for district_slug, district_name, locality_names in DISTRICTS:
         )
         page_count += 1
 
-for landing_index, landing_page in enumerate(LANDING_PAGES):
+for landing_index, landing_page in enumerate(ALL_LANDING_PAGES):
     directory = ROOT / landing_page["slug"]
     directory.mkdir(exist_ok=True)
     (directory / "index.html").write_text(render_landing(landing_page, landing_index), encoding="utf-8")
@@ -644,4 +730,4 @@ for landing_index, landing_page in enumerate(LANDING_PAGES):
 update_home()
 (ROOT / "sitemap.xml").write_text(build_sitemap(), encoding="utf-8")
 (ROOT / "rss.xml").write_text(build_rss(), encoding="utf-8")
-print(f"Generated {page_count} locality pages across {len(DISTRICTS)} districts and {len(LANDING_PAGES)} landing pages.")
+print(f"Generated {page_count} locality pages across {len(DISTRICTS)} districts and {len(ALL_LANDING_PAGES)} landing pages.")
