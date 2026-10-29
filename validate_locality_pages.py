@@ -9,6 +9,8 @@ ASSET_VERSION = "20261020-3"
 SOCIAL_IMAGE = "https://eduline.kr/og-image.png"
 
 all_pages = [ROOT / "index.html", *ROOT.glob("*/index.html"), *ROOT.glob("*/*/index.html")]
+guide_pages = list((ROOT / "guide").glob("*/index.html"))
+assert len(guide_pages) == 8, f"Expected 8 guide pages, found {len(guide_pages)}"
 assert (ROOT / "og-image.png").exists(), "Missing social preview image"
 for page in all_pages:
     html = page.read_text(encoding="utf-8")
@@ -17,7 +19,7 @@ for page in all_pages:
     assert '<meta property="og:image:height" content="630">' in html, f"Missing image height: {page}"
     assert '<meta name="twitter:card" content="summary_large_image">' in html, f"Missing Twitter card: {page}"
 
-pages = list(ROOT.glob("*/*/index.html"))
+pages = [page for page in ROOT.glob("*/*/index.html") if page.parent.parent.name != "guide"]
 assert len(pages) == 158, f"Expected 158 locality pages, found {len(pages)}"
 
 for page in pages:
@@ -63,7 +65,7 @@ assert parent_link_count == 158, f"Expected 158 parent links, found {parent_link
 sitemap = ElementTree.parse(ROOT / "sitemap.xml")
 namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 urls = [element.text for element in sitemap.findall(".//s:loc", namespace)]
-assert len(urls) == 211, f"Expected 211 sitemap URLs, found {len(urls)}"
+assert len(urls) == 220, f"Expected 220 sitemap URLs, found {len(urls)}"
 assert len(urls) == len(set(urls)), "Duplicate sitemap URL found"
 
 print(f"PASS pages={len(pages)} parent_links={parent_link_count} sitemap_urls={len(urls)}")

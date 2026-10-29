@@ -248,3 +248,27 @@ h1, h2 { margin: 0; font-family: "Gowun Batang", serif; font-weight: 700; line-h
 @media (max-width: 370px) {
   .region-dialog-grid { grid-template-columns: 1fr; }
 }.school-chips-wide { margin-top: 54px; }
+
+.hero-compact { min-height: min(560px, 80svh); }
+.hero-compact h1 { font-size: clamp(36px, 4.4vw, 60px); }
+.guide-article { max-width: 860px; margin: 0 auto; }
+.guide-meta { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+.guide-meta a { color: var(--coral); font-weight: 700; }
+.guide-summary { margin: 0 0 48px; border-left: 3px solid var(--coral); padding: 6px 0 6px 20px; font-size: 19px; font-weight: 600; }
+.guide-body h2 { margin: 52px 0 16px; font-size: clamp(24px, 2.6vw, 32px); }
+.guide-body p { margin: 0 0 16px; color: #3d4843; font-size: 16px; line-height: 1.9; }
+.guide-body ul { margin: 0 0 16px; padding: 22px 26px; list-style: none; background: var(--mist); }
+.guide-body li { padding: 4px 0; font-size: 15px; font-weight: 600; }
+.guide-body li::before { margin-right: 10px; color: var(--coral); content: "✓"; }
+.guide-related { margin-top: 56px; border-top: 1px solid var(--line); padding-top: 28px; }
+.guide-related strong { display: block; margin-bottom: 14px; }
+.guide-related div { display: flex; flex-wrap: wrap; gap: 10px; }
+.guide-related a { border: 1px solid var(--forest-light); padding: 8px 16px; color: var(--forest-light); font-size: 14px; font-weight: 700; }
+.guide-related a:hover { color: var(--white); background: var(--forest-light); }
+.guide-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 54px; }
+.guide-card { display: grid; gap: 8px; border: 1px solid var(--line); padding: 30px; background: rgba(255,255,255,.5); transition: border-color .2s, transform .2s; }
+.guide-card:hover { border-color: var(--forest-light); transform: translateY(-2px); }
+.guide-card small { color: #bc4e36; font-size: 12px; font-weight: 800; }
+.guide-card strong { font-size: 19px; }
+.guide-card span { color: var(--muted); font-size: 14px; }
+@media (max-width: 700px) { .guide-cards { grid-template-columns: 1fr; } .guide-summary { font-size: 17px; } }

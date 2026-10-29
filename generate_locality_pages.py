@@ -4,9 +4,11 @@ from urllib.parse import quote
 import json
 import re
 
+from guide_content import GUIDES
+
 
 ROOT = Path(__file__).parent
-LASTMOD = "2026-10-24"
+LASTMOD = "2026-10-29"
 ASSET_VERSION = "20261020-3"
 SOCIAL_IMAGE = "https://eduline.kr/og-image.png"
 PHONE = "010-2928-3614"
@@ -531,7 +533,7 @@ def render_landing(page, index):
                 f'<ul class="school-chips school-chips-wide">{school_chips(district_schools)}</ul>',
             )
         else:
-            links = district_grade_links(SCHOOL_DISTRICTS, [school_type]) + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug] + DISTRICT_LINKS
+            links = district_grade_links(SCHOOL_DISTRICTS, [school_type]) + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug] + DISTRICT_LINKS + [("수학 공부 가이드", "../guide/")]
             links_title, links_kicker = "지역별·학년별<br>수학과외 안내", "MORE GUIDE"
             schools = grouped_school_section(
                 f"인천 {school_type}별<br>수학 내신 대비",
@@ -569,7 +571,7 @@ def render_landing(page, index):
 
 
 def landing_links_section():
-    links = "".join(f'<a href="{slug}/">{title}</a>' for title, slug in LANDING_LINKS)
+    links = "".join(f'<a href="{slug}/">{title}</a>' for title, slug in LANDING_LINKS + [("수학 공부 가이드", "guide")])
     return (
         '<section class="locality-directory section" id="popular" aria-labelledby="popular-title"><div class="areas-heading reveal"><div><p class="kicker">POPULAR SEARCH</p>'
         '<h2 id="popular-title">많이 찾는<br>수학과외 안내</h2></div><p>송도·청라·검단·영종도 등 지역별 안내와 초등·중등·고등 학년별 수학과외 안내를 확인해 보세요.</p></div>'
@@ -660,6 +662,104 @@ def update_home():
     file_path.write_text(html, encoding="utf-8")
 
 
+def page_head(title, description, canonical, prefix, schema):
+    return (
+        '<!doctype html><html lang="ko"><head>\n<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">'
+        f'<meta name="description" content="{description}"><meta name="theme-color" content="#14362f"><meta property="og:type" content="article"><meta property="og:locale" content="ko_KR">'
+        f'<meta property="og:title" content="{title}"><meta property="og:description" content="{description}"><meta property="og:url" content="{canonical}">'
+        f'<meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:secure_url" content="{SOCIAL_IMAGE}"><meta property="og:image:type" content="image/png">'
+        '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="인천 수학과외 - 배운 만큼 풀리는 1:1 수업">'
+        f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="인천 수학과외 - 배운 만큼 풀리는 1:1 수업">'
+        f'<link rel="canonical" href="{canonical}"><link rel="icon" href="{prefix}favicon.svg" type="image/svg+xml"><title>{title}</title>'
+        '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        '<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">'
+        f'<link rel="stylesheet" href="{prefix}styles.css?v={ASSET_VERSION}"><script type="application/ld+json">{schema}</script></head><body>\n'
+    )
+
+
+def guide_shell(prefix, brand, kicker, h1, text, body):
+    return (
+        f'<header class="site-header" id="top"><a class="brand" href="{prefix}" aria-label="인천 수학과외 홈"><span class="brand-symbol" aria-hidden="true">∫</span><span>{brand}<small>EDULINE</small></span></a>'
+        '<button class="menu-button" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="메뉴 열기"><span></span><span></span><span></span></button>'
+        f'<nav class="primary-nav" id="primary-nav" aria-label="주요 메뉴"><a href="{prefix}guide/">공부 가이드</a><a href="{prefix}elementary-math/">초등</a><a href="{prefix}middle-math/">중등</a><a href="{prefix}high-math/">고등</a><a class="nav-contact" href="#contact">상담 신청</a></nav></header>\n'
+        '<main><section class="hero hero-compact"><div class="hero-image" role="img" aria-label="수학 공부를 하는 학생들"></div><div class="hero-overlay"></div>'
+        f'<div class="hero-content"><p class="kicker light">{kicker}</p><h1 id="hero-title">{h1}</h1><p class="hero-text">{text}</p></div></section>\n'
+        f'{body}\n'
+        '<section class="contact" id="contact"><div class="contact-copy reveal"><p class="kicker">START YOUR WAY</p><h2>인천 1:1 수학과외<br>상담 신청</h2>'
+        '<p>전화 주시면 학생의 학년과 목표에 맞춰 상담을 도와드립니다.</p><a href="tel:01029283614"><small>전화 상담</small>010-2928-3614</a></div></section></main>\n'
+        f'<footer class="site-footer"><a class="brand" href="{prefix}"><span class="brand-symbol" aria-hidden="true">∫</span><span>인천 수학과외<small>EDULINE</small></span></a>'
+        '<div><p>인천 초·중·고 1:1 수학과외</p><p>상담 문의 <a href="tel:01029283614">010-2928-3614</a></p></div><p>© <span id="year"></span> EDULINE. ALL RIGHTS RESERVED.</p></footer>'
+        '<a class="floating-contact" href="#contact" aria-label="상담 신청"><span>상담</span><span aria-hidden="true">↗</span></a>'
+        f'<script src="{prefix}script.js?v={ASSET_VERSION}"></script></body></html>'
+    )
+
+
+def render_guide(guide):
+    canonical = f"https://eduline.kr/guide/{guide['slug']}/"
+    prefix = "../../"
+    plain_h1 = re.sub(r"<[^>]+>", " ", guide["h1"]).replace("  ", " ").strip()
+    schema = json_ld([
+        {
+            "@type": "Article", "headline": guide["title"].split(" | ")[0], "description": guide["description"], "url": canonical,
+            "image": SOCIAL_IMAGE, "datePublished": "2026-10-29", "dateModified": LASTMOD, "inLanguage": "ko-KR",
+            "author": {"@type": "Organization", "name": "인천 수학과외 EDULINE", "url": "https://eduline.kr/"},
+            "publisher": {"@type": "Organization", "name": "인천 수학과외 EDULINE", "url": "https://eduline.kr/"},
+        },
+        breadcrumb_schema([("인천 수학과외", "https://eduline.kr/"), ("수학 공부 가이드", "https://eduline.kr/guide/"), (plain_h1, canonical)]),
+        faq_schema(guide["category"], guide["faq"]),
+    ])
+    sections = "".join(
+        f'<h2>{heading}</h2>{"".join(f"<p>{html_escape(text)}</p>" for text in paragraphs)}'
+        + (f'<ul>{"".join(f"<li>{html_escape(item)}</li>" for item in items)}</ul>' if items else "")
+        for heading, paragraphs, items in guide["sections"]
+    )
+    related = "".join(f'<a href="{prefix}{href}">{label}</a>' for label, href in guide["related"])
+    others = "".join(
+        f'<a href="../{other["slug"]}/">{other["title"].split(" | ")[0]}</a>' for other in GUIDES if other["slug"] != guide["slug"]
+    )
+    body = (
+        f'<article class="guide-article section"><p class="guide-meta"><a href="../">수학 공부 가이드</a> · {guide["category"]}</p>'
+        f'<p class="guide-summary">{html_escape(guide["summary"])}</p><div class="guide-body">{sections}</div>'
+        f'<div class="guide-related"><strong>함께 보면 좋은 안내</strong><div>{related}</div></div></article>\n'
+        + faq_section(guide["category"], guide["faq"]).replace(" 수학과외<br>자주 묻는 질문", "<br>자주 묻는 질문")
+        + '\n<section class="locality-directory section" aria-labelledby="more-guides"><div class="areas-heading reveal"><div><p class="kicker">MORE GUIDE</p>'
+        '<h2 id="more-guides">다른 수학 공부<br>가이드 보기</h2></div><p>학년과 고민에 맞는 수학 공부법을 확인해 보세요.</p></div>'
+        f'<div class="locality-grid nearby-grid">{others}</div></section>'
+    )
+    return page_head(guide["title"], guide["description"], canonical, prefix, schema) + guide_shell(
+        prefix, "수학 공부 가이드", f"MATH GUIDE · {guide['category']}", guide["h1"], html_escape(guide["summary"]), body
+    )
+
+
+def render_guide_index():
+    canonical = "https://eduline.kr/guide/"
+    prefix = "../"
+    title = "수학 공부 가이드 | 초등·중등·고등 수학내신·수능대비 공부법"
+    description = f"인천 수학과외 EDULINE의 수학 공부 가이드 - 초등 기초수학, 중등 수학내신, 서술형, 예비고1, 수능수학 기출 분석까지 학년별 수학 공부법을 정리했습니다. 상담 {PHONE}"
+    schema = json_ld([
+        {"@type": "CollectionPage", "name": "수학 공부 가이드", "url": canonical, "description": description, "inLanguage": "ko-KR"},
+        breadcrumb_schema([("인천 수학과외", "https://eduline.kr/"), ("수학 공부 가이드", canonical)]),
+        {"@type": "ItemList", "itemListElement": [
+            {"@type": "ListItem", "position": position, "url": f"https://eduline.kr/guide/{guide['slug']}/", "name": guide["title"].split(" | ")[0]}
+            for position, guide in enumerate(GUIDES, start=1)
+        ]},
+    ])
+    cards = "".join(
+        f'<a class="guide-card reveal" href="{guide["slug"]}/"><small>{guide["category"]}</small><strong>{guide["title"].split(" | ")[0]}</strong>'
+        f'<span>{html_escape(guide["summary"])}</span></a>'
+        for guide in GUIDES
+    )
+    body = (
+        '<section class="section guide-index"><div class="areas-heading reveal"><div><p class="kicker">MATH STUDY GUIDE</p><h2>학년별 수학<br>공부 가이드</h2></div>'
+        '<p>초등 기초수학부터 중등 수학내신, 고등 수능수학까지 학생과 학부모가 자주 묻는 수학 공부법을 정리했습니다.</p></div>'
+        f'<div class="guide-cards">{cards}</div></section>'
+    )
+    return page_head(title, description, canonical, prefix, schema) + guide_shell(
+        prefix, "수학 공부 가이드", "MATH STUDY GUIDE", "수학 공부 가이드,<br><em>학년별 공부법 모음</em>",
+        "초등·중등·고등 수학내신과 수능대비, 지금 필요한 공부법을 확인해 보세요.", body
+    )
+
+
 def build_sitemap():
     urls = [
         f"  <url><loc>https://eduline.kr/{slug}/</loc><lastmod>{LASTMOD}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>"
@@ -672,6 +772,11 @@ def build_sitemap():
     urls.extend(
         f"  <url><loc>https://eduline.kr/{page['slug']}/</loc><lastmod>{LASTMOD}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>"
         for page in ALL_LANDING_PAGES
+    )
+    urls.append(f"  <url><loc>https://eduline.kr/guide/</loc><lastmod>{LASTMOD}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>")
+    urls.extend(
+        f"  <url><loc>https://eduline.kr/guide/{guide['slug']}/</loc><lastmod>{LASTMOD}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>"
+        for guide in GUIDES
     )
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -692,7 +797,8 @@ def build_rss():
         for slug, district, localities in DISTRICTS for locality in localities
     )
     items.extend((page["title"], f"https://eduline.kr/{page['slug']}/", page["description"]) for page in ALL_LANDING_PAGES)
-    pub_date = "Sat, 24 Oct 2026 09:00:00 +0900"
+    items.extend((guide["title"], f"https://eduline.kr/guide/{guide['slug']}/", guide["description"]) for guide in GUIDES)
+    pub_date = "Thu, 29 Oct 2026 09:00:00 +0900"
     body = "\n".join(
         f"    <item><title>{title}</title><link>{link}</link><guid>{link}</guid><description>{text}</description><pubDate>{pub_date}</pubDate></item>"
         for title, link, text in items
@@ -726,6 +832,13 @@ for landing_index, landing_page in enumerate(ALL_LANDING_PAGES):
     directory = ROOT / landing_page["slug"]
     directory.mkdir(exist_ok=True)
     (directory / "index.html").write_text(render_landing(landing_page, landing_index), encoding="utf-8")
+
+guide_root = ROOT / "guide"
+guide_root.mkdir(exist_ok=True)
+(guide_root / "index.html").write_text(render_guide_index(), encoding="utf-8")
+for guide in GUIDES:
+    (guide_root / guide["slug"]).mkdir(exist_ok=True)
+    (guide_root / guide["slug"] / "index.html").write_text(render_guide(guide), encoding="utf-8")
 
 update_home()
 (ROOT / "sitemap.xml").write_text(build_sitemap(), encoding="utf-8")
