@@ -133,7 +133,10 @@ def set_meta(html, title, description):
 
 def render_page(slug, district, locality, index, localities):
     canonical = f"https://eduline.kr/{slug}/{encoded(locality)}/"
-    district_url = f"https://eduline.kr/{slug}/"
+    district = school_district(slug, locality)[0]
+    hub = DISTRICT_HUBS[district]
+    hub_href = "../" if hub == slug else f"../../{hub}/"
+    district_url = f"https://eduline.kr/{hub}/"
     rural = locality.endswith(("읍", "면"))
     area_copy = (
         f"{locality}의 이동 여건과 학교 일정, 학생의 학습 목표를 함께 확인해 가능한 수업 일정과 방식을 안내합니다."
@@ -155,7 +158,10 @@ def render_page(slug, district, locality, index, localities):
         breadcrumb_schema([("인천 수학과외", "https://eduline.kr/"), (f"{district} 수학과외", district_url), (f"{locality} 수학과외", canonical)]),
         faq_schema(locality),
     ])
-    nearby = "".join(f'<a href="../{encoded(name)}/">{name} 수학과외</a>' for name in localities if name != locality)
+    nearby = "".join(
+        f'<a href="../{encoded(name)}/">{name} 수학과외</a>'
+        for name in localities if name != locality and school_district(slug, name) == [district]
+    )
     nearby_section = (
         '<section class="locality-directory section" aria-labelledby="nearby-title"><div class="areas-heading reveal"><div><p class="kicker">NEARBY AREA</p>'
         f'<h2 id="nearby-title">{district} 다른 지역<br>수학과외 안내</h2></div><p>가까운 지역의 초등·중등·고등 수학과외 안내도 확인해 보세요.</p></div>'
@@ -163,7 +169,7 @@ def render_page(slug, district, locality, index, localities):
     )
     return f'''<!doctype html><html lang="ko"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="{description}"><meta name="theme-color" content="#14362f"><meta property="og:type" content="website"><meta property="og:locale" content="ko_KR"><meta property="og:title" content="{title}"><meta property="og:description" content="{description}"><meta property="og:url" content="{canonical}"><meta property="og:image" content="{SOCIAL_IMAGE}"><meta property="og:image:secure_url" content="{SOCIAL_IMAGE}"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="인천 수학과외 - 배운 만큼 풀리는 1:1 수업"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{SOCIAL_IMAGE}"><meta name="twitter:image:alt" content="인천 수학과외 - 배운 만큼 풀리는 1:1 수업"><link rel="canonical" href="{canonical}"><link rel="icon" href="../../favicon.svg" type="image/svg+xml"><title>{title}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../styles.css?v={ASSET_VERSION}"><script type="application/ld+json">{schema}</script></head><body>
-<header class="site-header" id="top"><a class="brand" href="../../" aria-label="인천 수학과외 홈"><span class="brand-symbol" aria-hidden="true">∫</span><span>{locality} 수학과외<small>EDULINE</small></span></a><button class="menu-button" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="메뉴 열기"><span></span><span></span><span></span></button><nav class="primary-nav" id="primary-nav" aria-label="주요 메뉴"><a href="#approach">수업 안내</a><a href="#curriculum">학년별 수업</a><a href="#faq">자주 묻는 질문</a><a href="../">{district} 지역</a><a class="nav-contact" href="#contact">상담 신청</a></nav></header>
+<header class="site-header" id="top"><a class="brand" href="../../" aria-label="인천 수학과외 홈"><span class="brand-symbol" aria-hidden="true">∫</span><span>{locality} 수학과외<small>EDULINE</small></span></a><button class="menu-button" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="메뉴 열기"><span></span><span></span><span></span></button><nav class="primary-nav" id="primary-nav" aria-label="주요 메뉴"><a href="#approach">수업 안내</a><a href="#curriculum">학년별 수업</a><a href="#faq">자주 묻는 질문</a><a href="{hub_href}">{district} 지역</a><a class="nav-contact" href="#contact">상담 신청</a></nav></header>
 <main><section class="hero" aria-labelledby="hero-title"><div class="hero-image" role="img" aria-label="선생님과 함께 수학 문제를 공부하는 학생"></div><div class="hero-overlay"></div><div class="hero-content"><p class="kicker light">{slug.upper()} {number} MATH TUTORING</p><h1 id="hero-title">인천 {locality} 수학과외,<br><em>학생에게 맞는 1:1 수업</em></h1><p class="hero-text">{area_copy}<br class="desktop-only"> 이해한 내용을 스스로 풀어낼 때까지 꼼꼼하게 이어갑니다.</p><div class="hero-actions"><a class="button button-coral" href="#contact">{action_copy} <span aria-hidden="true">↗</span></a><a class="phone" href="tel:01029283614"><small>전화 상담</small><strong>010-2928-3614</strong></a></div></div><div class="hero-note" aria-hidden="true"><span>{number}</span><i></i><span>{area_label}</span></div></section>
 <section class="intro section" id="approach"><div class="section-heading reveal"><p class="kicker">PERSONAL MATH LESSON</p><h2>현재 실력에서<br>필요한 공부부터</h2></div><div class="intro-copy reveal"><p class="lead">정해진 진도보다<br><strong>학생의 이해를 먼저 봅니다.</strong></p><p>{area_copy} 개념 이해도와 계산 정확도, 문제 해석 과정을 살핀 뒤 학생이 소화할 수 있는 순서로 수업합니다.</p></div><div class="values"><article class="value reveal"><span>01</span><strong>진단</strong><h3>개념 빈틈 확인</h3><p>최근 시험과 오답에서 막히는 지점을 찾습니다.</p></article><article class="value reveal"><span>02</span><strong>설계</strong><h3>개인별 진도 구성</h3><p>학교 일정과 목표에 맞춰 학습 순서를 정합니다.</p></article><article class="value reveal"><span>03</span><strong>관리</strong><h3>복습과 오답 점검</h3><p>배운 내용을 혼자서도 풀 수 있게 관리합니다.</p></article></div></section>
 {grade_guide(locality, index)}
@@ -535,10 +541,11 @@ def render_landing(page, index):
         else:
             links = district_grade_links(SCHOOL_DISTRICTS, [school_type]) + [(title, f"../{target}/") for title, target in LANDING_LINKS if target != slug] + DISTRICT_LINKS + [("수학 공부 가이드", "../guide/")]
             links_title, links_kicker = "지역별·학년별<br>수학과외 안내", "MORE GUIDE"
-            schools = grouped_school_section(
+            schools = school_links_section(
                 f"인천 {school_type}별<br>수학 내신 대비",
                 f"인천 {school_type} {sum(s['type'] == school_type for s in SCHOOLS)}곳의 학교별 진도와 시험 범위, 기출 유형에 맞춰 수업합니다. 구·군을 선택해 학교 목록을 확인해 보세요.",
                 [school_type],
+                "../",
             )
     else:
         guide = grade_guide(area, index)
@@ -579,6 +586,22 @@ def landing_links_section():
     )
 
 
+PARENT_LABELS = {"jung-gu": "제물포구·영종구(옛 중구)", "dong-gu": "제물포구(옛 동구)", "seo-gu": "서해구·검단구(옛 서구)"}
+
+
+def school_link_grid(school_types):
+    links = []
+    for district in SCHOOL_DISTRICTS:
+        for school_type in school_types:
+            count = sum(school["district"] == district and school["type"] == school_type for school in SCHOOLS)
+            links.append(f'<a href="{{prefix}}{district_grade_slug(district, school_type)}/">{district} {school_type} {count}곳</a>')
+    return f'<div class="locality-grid nearby-grid school-link-grid">{"".join(links)}</div>'
+
+
+def school_links_section(heading, lead, school_types, prefix):
+    return school_section(heading, lead, school_link_grid(school_types).replace("{prefix}", prefix))
+
+
 def update_parent(slug, district, localities):
     file_path = ROOT / slug / "index.html"
     canonical = f"https://eduline.kr/{slug}/"
@@ -598,10 +621,11 @@ def update_parent(slug, district, localities):
             '<meta name="twitter:image:alt" content="인천 수학과외 - 배운 만큼 풀리는 1:1 수업">'
         )
         html = html.replace('<link rel="canonical"', social_meta + '<link rel="canonical"', 1)
+    label = PARENT_LABELS.get(slug, district)
     html = set_meta(
         html,
-        f"인천 {district} 수학과외 | 초등·중등·고등 수학 내신·수능대비",
-        f"인천 {district} 수학과외 - {'·'.join(localities[:3])} 등 {district} 전 지역 초등 기초수학, 중등 수학내신, 고등 수능대비·수능수학 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
+        f"인천 {label} 수학과외 | 초등·중등·고등 수학 내신·수능대비",
+        f"인천 {label} 수학과외 - {'·'.join(localities[:3])} 등 {district} 전 지역 초등 기초수학, 중등 수학내신, 고등 수능대비·수능수학 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
     )
     html = set_schema(html, json_ld([
         {
@@ -633,13 +657,33 @@ def update_parent(slug, district, localities):
     file_path.write_text(html, encoding="utf-8")
 
 
+def update_home_districts(html):
+    dialog = "\n".join(
+        f'        <a href="{DISTRICT_HUBS[district]}/"><small>{str(number).zfill(2)}</small><strong>{district}</strong><span aria-hidden="true">↗</span></a>'
+        for number, district in enumerate(SCHOOL_DISTRICTS, start=1)
+    )
+    html = re.sub(
+        r'(<nav class="region-dialog-grid" aria-label="인천 시·군·구 선택">\n).*?(\n      </nav>)',
+        lambda match: match.group(1) + dialog + match.group(2), html, count=1, flags=re.S,
+    )
+    area_links = "".join(
+        f'<a href="{DISTRICT_HUBS[district]}/"><small>{str(number).zfill(2)}</small>{district}</a>'
+        for number, district in enumerate(SCHOOL_DISTRICTS, start=1)
+    )
+    html = re.sub(
+        r'(<div class="area-list">).*?(</div>)',
+        lambda match: f"{match.group(1)}\n          {area_links}<span><small>12</small>인천 전 지역</span>\n        {match.group(2)}", html, count=1, flags=re.S,
+    )
+    return html.replace("<p>8개 구 · 2개 군</p>", "<p>9개 구 · 2개 군</p>")
+
+
 def update_home():
     file_path = ROOT / "index.html"
     html = file_path.read_text(encoding="utf-8")
     html = set_meta(
         html,
         "인천 수학과외 | 초등·중등·고등 1:1 수학 내신·수능대비 EDULINE",
-        f"인천 수학과외 EDULINE - 연수구·남동구·부평구·서구 등 인천 전 지역 초등 기초수학, 중등 수학내신, 고등 수능대비·수능수학까지 학년별 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
+        f"인천 수학과외 EDULINE - 연수구·남동구·부평구·서해구·검단구 등 인천 전 지역 초등 기초수학, 중등 수학내신, 고등 수능대비·수능수학까지 학년별 1:1 맞춤 수학수업. 무료 학습 상담 {PHONE}",
     )
     html = re.sub(r'href="styles\.css(?:\?v=[^"]+)?"', f'href="styles.css?v={ASSET_VERSION}"', html)
     html = re.sub(r'src="script\.js(?:\?v=[^"]+)?"', f'src="script.js?v={ASSET_VERSION}"', html)
@@ -654,10 +698,12 @@ def update_home():
         {"@type": "WebSite", "name": "인천 수학과외 EDULINE", "url": "https://eduline.kr/", "inLanguage": "ko-KR"},
         faq_schema("인천"),
     ]))
-    html = set_seo_block(html, grade_guide("인천", 0, "grade-guide") + grouped_school_section(
+    html = update_home_districts(html)
+    html = set_seo_block(html, grade_guide("인천", 0, "grade-guide") + school_links_section(
         "인천 학교별<br>수학 내신 대비",
-        f"인천 초등학교 {sum(s['type'] == '초등학교' for s in SCHOOLS)}곳, 중학교 {sum(s['type'] == '중학교' for s in SCHOOLS)}곳, 고등학교 {sum(s['type'] == '고등학교' for s in SCHOOLS)}곳. 학생이 다니는 학교의 진도와 시험 범위, 기출 유형에 맞춰 수학내신과 수능대비를 준비합니다.",
+        f"인천 초등학교 {sum(s['type'] == '초등학교' for s in SCHOOLS)}곳, 중학교 {sum(s['type'] == '중학교' for s in SCHOOLS)}곳, 고등학교 {sum(s['type'] == '고등학교' for s in SCHOOLS)}곳. 구·군과 학교급을 선택하면 학교 목록과 학교별 수학내신 대비 안내를 볼 수 있습니다.",
         SCHOOL_TYPES,
+        "",
     ) + faq_section("인천") + landing_links_section())
     file_path.write_text(html, encoding="utf-8")
 
